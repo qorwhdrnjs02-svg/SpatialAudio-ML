@@ -1,0 +1,22 @@
+# 기초 오디오 처리 및 수치 계산
+numpy
+scipy
+librosa
+soundfile
+
+# 공간 음향 시뮬레이션 (핵심!)
+pyroomacoustics
+
+# 딥러닝 프레임워크 (PyTorch 추천)
+torch
+torchvision
+torchaudio
+
+# 시각화 및 데이터 분석
+matplotlib
+pandas
+scikit-learn
+
+# 웹 데모 변환 관련 (추후 단계)
+onnx
+# tensorflowjs  # 필요 시 설치
