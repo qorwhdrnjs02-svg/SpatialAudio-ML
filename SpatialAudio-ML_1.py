@@ -30,9 +30,19 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
     # [가로(x), 세로(y), 높이(z)]
     room_dim = [10.0, 10.0, 10.0] # 10m x 10m x 3m 방
     mic_positions = np.array([
-    [2.0, 2.0, 1.5], # 왼쪽 귀
-    [8.0, 2.0, 1.5]  # 오른쪽 귀
-    ]).T # shape: (3, 2)
+    # 마이크 위치 (x, y, z)
+
+    #여기서 오류가 나는 이유는 마이크 3과 마이크 4의 z축 정보가 모두 1.0으로 동일하기 때문입니다. 
+    #이렇게 되면 모델이 z축 방향의 위치를 구분할 수 없게 됩니다. 
+    # 따라서 마이크 3과 마이크 4의 z축 정보를 다르게 설정하여 모델이 
+    # z축 방향의 위치도 학습할 수 있도록 해야 합니다.
+    #이상적인 마이크 배치는 정사면체 형태로, 각 마이크가 x, y, z축에서 고유한 위치를 가지도록 하는 것입니다.
+    #구체적인 좌표는 방의 크기와 원하는 분포에 따라 다를 수 있지만, 예시로는 다음과 같이 설정할 수 있습니다:
+    [1.0, 1.0, 1.0],  # 마이크 1 (기준점)
+    [9.0, 9.0, 1.0],  # 마이크 2 (x축과 y축에서 멀리 떨어진 위치)
+    [1.0, 9.0, 9.0],  # 마이크 3 (높이 8m로 설정하여 z축 정보도 포함)
+    [9.0, 1.0, 9.0]  # 마이크 4 (높이 2m로 설정하여 z축 정보도 포함)
+    ]).T # shape: (3, 3) -> (3, 3)
     # 3. 방 생성
     # absorption: 벽의 흡음률 (0에 가까울수록 반사가 심해 울리고, 1에 가까울수록 조용함)
     # fs: 샘플링 레이트 (우리의 오디오 설정과 맞춰야 함)
@@ -42,7 +52,7 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
     for i in range(NUM_SAMPLES_PER_COORD):
         # 무작위 소스 좌표 생성
         x, y, z = np.random.uniform(0.0, 9.8, 3)
-        source_pos = [x, y, z] # 높이는 마이크와 동일하게 1.5m로 고정
+        source_pos = [x, y, z] 
 
         # --- [시뮬레이션 핵심 파트] ---
         # 1) 방 생성 및 설정
@@ -56,18 +66,18 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
         # 3) 마이크에 수신된 신호 추출
         # room.mic_array.signals[0]는 시뮬레이션된 오디오 파형입니다.
         simulated_signal = room.mic_array.signals[0]
-
         # 4) MFCC 추출
         # signals[0]은 왼쪽 마이크, signals[1]은 오른쪽 마이크
-        mfcc_l = librosa.feature.mfcc(y=room.mic_array.signals[0], sr=SAMPLE_RATE, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
-        mfcc_r = librosa.feature.mfcc(y=room.mic_array.signals[1], sr=SAMPLE_RATE, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
-
-        # 두 채널을 겹쳐서 저장 (마치 컬러 이미지의 R, G 채널처럼)
-        mfcc_stereo = np.stack([mfcc_l.T, mfcc_r.T], axis=-1) # (1262, 13, 2)
+        mfcc_1 = librosa.feature.mfcc(y=room.mic_array.signals[0], sr=SAMPLE_RATE, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
+        mfcc_2 = librosa.feature.mfcc(y=room.mic_array.signals[1], sr=SAMPLE_RATE, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
+        mfcc_3 = librosa.feature.mfcc(y=room.mic_array.signals[2], sr=SAMPLE_RATE, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
+        mfcc_4 = librosa.feature.mfcc(y=room.mic_array.signals[3], sr=SAMPLE_RATE, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
+        # MFCC는 (특징 수, 시간 프레임 수) 형태로 나옵니다. 우리는 (시간 프레임 수, 특징 수, 채널 수) 형태로 모델에 넣어야 하므로 차원 재배치와 채널 결합이 필요합니다.
+        mfcc_stereo = np.stack([mfcc_1.T, mfcc_2.T, mfcc_3.T, mfcc_4.T], axis=-1) # (1262, 13, 4) 형태로 저장
         # ----------------------------
 
         # 데이터 저장
-        data["coords"].append([x, y, z]) # z는 고정된 1.5m
+        data["coords"].append([x, y, z]) 
         data["mfcc"].append(mfcc_stereo.tolist())
 
         if (i + 1) % 100 == 0:

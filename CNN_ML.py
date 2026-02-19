@@ -15,7 +15,7 @@ with open(JSON_PATH, "r") as f:
 # 정확한 규격 설정
 fixed_length = 1262
 num_features = 13
-num_channels = 2
+num_channels = 4
 
 mfcc_list = []
 valid_indices = []
@@ -86,7 +86,7 @@ def build_spatial_model(input_shape):
     model = models.Sequential([
         # 특징 추출 파트
         # Input shape에는 '샘플 수(None)'를 제외한 나머지 차원만 씁니다.
-        layers.Input(shape=(1262, 13, 2)),
+        layers.Input(shape=(1262, 13, 4)),
         layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
         layers.MaxPooling2D((2, 2)),
         
@@ -109,8 +109,7 @@ def build_spatial_model(input_shape):
     return model
 
 # 3. 모델 생성 및 요약 출력
-input_shape = (1262, 13, 2) # (시간, 특징수, 채널)
-#좌표가 2차원에서 3차원으로 바뀌었으므로 input_shape도 (1262, 13, 2)로 변경
+input_shape = (1262, 13, 4) # (시간, 특징수, 채널)
 model = build_spatial_model(input_shape)
 model.summary()
 
