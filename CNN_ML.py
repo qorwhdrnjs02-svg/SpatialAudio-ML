@@ -163,5 +163,5 @@ for i in range(3):
     print("-" * 20)
 
 # 6. 모델 저장
-model.save("models/spatial_audio_model.h5")
-print("\n✅ 모델 학습 완료 및 저장 성공! (spatial_audio_model.h5)")
+model.save("models/spatial_audio_model.keras")
+print("\n✅ 모델 학습 완료 및 저장 성공! (spatial_audio_model.keras)")
