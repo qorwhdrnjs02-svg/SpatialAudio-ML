@@ -8,7 +8,7 @@ import pyroomacoustics as pra
 DATASET_PATH = "original_audio" # 원본 소리가 있는 곳
 JSON_PATH = "data/spatial_data.json"
 SAMPLE_RATE = 22050
-NUM_SAMPLES_PER_COORD = 1000 # 생성할 가상 데이터 수
+NUM_SAMPLES_PER_COORD = 5000 # 생성할 가상 데이터 수
 
 def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length=512):
     # 데이터를 담을 딕셔너리
@@ -28,10 +28,10 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
 
     # 2. 방의 가로, 세로, 높이 설정 (단위: 미터)
     # [가로(x), 세로(y), 높이(z)]
-    room_dim = [10.0, 10.0, 3.0] # 10m x 10m x 3m 방
+    room_dim = [10.0, 10.0, 10.0] # 10m x 10m x 3m 방
     mic_positions = np.array([
-    [1.9, 2.0, 1.5], # 왼쪽 귀
-    [2.1, 2.0, 1.5]  # 오른쪽 귀
+    [2.0, 2.0, 1.5], # 왼쪽 귀
+    [8.0, 2.0, 1.5]  # 오른쪽 귀
     ]).T # shape: (3, 2)
     # 3. 방 생성
     # absorption: 벽의 흡음률 (0에 가까울수록 반사가 심해 울리고, 1에 가까울수록 조용함)
@@ -41,8 +41,8 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
     # 2. 루프를 돌며 가상 좌표 생성 및 시뮬레이션
     for i in range(NUM_SAMPLES_PER_COORD):
         # 무작위 소스 좌표 생성
-        x, y = np.random.uniform(0.0, 9.8, 2)
-        source_pos = [x, y, 1.5] # 높이는 마이크와 동일하게 1.5m로 고정
+        x, y, z = np.random.uniform(0.0, 9.8, 3)
+        source_pos = [x, y, z] # 높이는 마이크와 동일하게 1.5m로 고정
 
         # --- [시뮬레이션 핵심 파트] ---
         # 1) 방 생성 및 설정
@@ -67,7 +67,7 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
         # ----------------------------
 
         # 데이터 저장
-        data["coords"].append([x, y, 1.5]) # z는 고정된 1.5m
+        data["coords"].append([x, y, z]) # z는 고정된 1.5m
         data["mfcc"].append(mfcc_stereo.tolist())
 
         if (i + 1) % 100 == 0:

@@ -56,7 +56,7 @@ for i, m in enumerate(data["mfcc"]):
 if len(mfcc_list) > 0:
     X = np.stack(mfcc_list, axis=0)
     X = np.squeeze(X) #불필요한 차원 제거
-    y = np.array(data["coords"])[valid_indices, :2]
+    y = np.array(data["coords"])[valid_indices, :3]
     print(f"✅ 성공: {len(X)}개의 데이터를 확보했습니다!")
     print(f"최종 shape: X={X.shape}, y={y.shape}")
 else:
@@ -100,7 +100,7 @@ def build_spatial_model(input_shape):
         layers.GlobalAveragePooling2D(),
         layers.Dense(256, activation='relu'),
         layers.Dropout(0.5), # 과적합 방지
-        layers.Dense(2)      # 출력: x, y, z 좌표  
+        layers.Dense(3)      # 출력: x, y, z 좌표  
     ])
     
     # 회귀 문제이므로 Optimizer는 Adam, Loss는 MSE(평균제곱오차)를 씁니다.
@@ -109,7 +109,8 @@ def build_spatial_model(input_shape):
     return model
 
 # 3. 모델 생성 및 요약 출력
-input_shape = (1262, 13, 1, 2) # (시간, 특징수, 채널)
+input_shape = (1262, 13, 2) # (시간, 특징수, 채널)
+#좌표가 2차원에서 3차원으로 바뀌었으므로 input_shape도 (1262, 13, 2)로 변경
 model = build_spatial_model(input_shape)
 model.summary()
 
@@ -120,6 +121,8 @@ print("\n학습을 시작합니다...")
 # y_test_scaled = y_test / 4.8
 
 history = model.fit(
+    #여기서 오류가 나는 이유는 y_train과 y_test가 (샘플 수, 3) 형태로 되어 있기 때문입니다. 모델의 출력이 (샘플 수, 2)로 되어 있어서 차원이 맞지 않는 것입니다.
+    #따라서 모델의 출력 레이어를 Dense(3)으로 변경하거나, y_train과 y_test에서 z 좌표를 제거하여 (샘플 수, 2) 형태로 만들어야 합니다.
     X_train, y_train,
     epochs=50,
     batch_size=32,
