@@ -4,12 +4,13 @@ import numpy as np
 import json
 import pyroomacoustics as pra
 
-# 설정값
+# 설정값(상수)
 DATASET_PATH = "original_audio" # 원본 소리가 있는 곳
 JSON_PATH = "data/spatial_data.json"
 SAMPLE_RATE = 22050
 NUM_SAMPLES_PER_COORD = 5000 # 생성할 가상 데이터 수
 
+# 1. 데이터 생성 및 저장 (원본 소리 -> 시뮬레이션 -> MFCC -> JSON)
 def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length=512):
     # 데이터를 담을 딕셔너리
     data = {
@@ -31,10 +32,6 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
     room_dim = [10.0, 10.0, 10.0] # 10m x 10m x 3m 방
     mic_positions = np.array([
     # 마이크 위치 (x, y, z)
-
-    #여기서 오류가 나는 이유는 마이크 3과 마이크 4의 z축 정보가 모두 1.0으로 동일하기 때문입니다. 
-    #이렇게 되면 모델이 z축 방향의 위치를 구분할 수 없게 됩니다. 
-    # 따라서 마이크 3과 마이크 4의 z축 정보를 다르게 설정하여 모델이 
     # z축 방향의 위치도 학습할 수 있도록 해야 합니다.
     #이상적인 마이크 배치는 정사면체 형태로, 각 마이크가 x, y, z축에서 고유한 위치를 가지도록 하는 것입니다.
     #구체적인 좌표는 방의 크기와 원하는 분포에 따라 다를 수 있지만, 예시로는 다음과 같이 설정할 수 있습니다:
@@ -43,6 +40,7 @@ def save_spatial_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length
     [1.0, 9.0, 9.0],  # 마이크 3 (높이 8m로 설정하여 z축 정보도 포함)
     [9.0, 1.0, 9.0]  # 마이크 4 (높이 2m로 설정하여 z축 정보도 포함)
     ]).T # shape: (3, 3) -> (3, 3)
+
     # 3. 방 생성
     # absorption: 벽의 흡음률 (0에 가까울수록 반사가 심해 울리고, 1에 가까울수록 조용함)
     # fs: 샘플링 레이트 (우리의 오디오 설정과 맞춰야 함)

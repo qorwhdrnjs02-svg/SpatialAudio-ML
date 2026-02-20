@@ -1,4 +1,23 @@
-*.json
+# Python
+__pycache__/
+*.py[cod]
+venv/
+
+# Audio Data (용량 문제로 제외)
 data/
+*.wav
+*.mp3
+
+# ML Models
+*.pth
+*.h5
+*.onnx
+
+# OS files
+.DS_Store
+Thumbs.db
+
 *.json
+*.npy
+*.npz
 data/
