@@ -12,7 +12,6 @@
 - **Language:** Python 3.14+
 - **Audio Processing:** Librosa, PyRoomAcoustics, SoundFile
 - **Deep Learning:** PyTorch
-- **Environment:** Anaconda / Jupyter Notebook
 - **Version Control:** Git / GitHubg
 
 # 🎧 SpatialAudio-ML: 3D 공간 음향 위치 추정 프로젝트
@@ -152,7 +151,13 @@ loss: 0.5395 - mae: 0.5545 - val_loss: 0.0589 - val_mae: 0.1863
 예측 위치: [4.53, 9.27, 0.44]
 오차 거리: 0.42m
 --------------------
+[2번 샘플]
+실제 위치: [0.36 6.63 7.21]
+예측 위치: [0.56 6.72  6.86]
+오차 거리: 0.41m
+--------------------
 [3번 샘플]
 실제 위치: [2.79, 6.16, 6.31]
 예측 위치: [2.80, 6.43, 6.39]
 오차 거리: 0.28m
+```
