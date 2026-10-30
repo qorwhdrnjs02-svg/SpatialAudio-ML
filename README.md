@@ -38,15 +38,23 @@ Valerio Velardo의 유튜브 강의 "Deep Learning for Audio with Python"(The So
 
 **순전파**
 
-$$h_1 = a_0 W_0,\quad a_1 = \sigma(h_1),\quad h_2 = a_1 W_1,\quad a_2 = \sigma(h_2)$$
+$$h_1 = a_0 W_0, \quad a_1 = \sigma(h_1), \quad h_2 = a_1 W_1, \quad a_2 = \sigma(h_2)$$
 
 **역전파**
 
 출력층부터 거꾸로 각 층의 오차 기여도(델타)를 구합니다.
 
-1. 출력층: $error_2 = y - a_2$, $\delta_2 = error_2 \odot \sigma'(a_2)$, $\Delta W_1 = a_1^T \delta_2$
-2. 은닉층: $error_1 = \delta_2 W_1^T$, $\delta_1 = error_1 \odot \sigma'(a_1)$, $\Delta W_0 = a_0^T \delta_1$
-3. 업데이트: $W \leftarrow W + \eta\,\Delta W$
+출력층
+
+$$e_2 = y - a_2, \quad \delta_2 = e_2 \odot \sigma'(a_2), \quad \Delta W_1 = a_1^T \delta_2$$
+
+은닉층
+
+$$e_1 = \delta_2 W_1^T, \quad \delta_1 = e_1 \odot \sigma'(a_1), \quad \Delta W_0 = a_0^T \delta_1$$
+
+업데이트 ($\eta$는 학습률)
+
+$$W \leftarrow W + \eta \Delta W$$
 
 델타는 항상 "전달받은 오차 ⊙ 그 층의 기울기" 꼴입니다. 행렬 곱은 오차를 앞 층으로 보내는 역할을, 원소별 곱은 그 층의 활성화 함수 특성을 반영하는 역할을 합니다.
 
@@ -54,12 +62,17 @@ $$h_1 = a_0 W_0,\quad a_1 = \sigma(h_1),\quad h_2 = a_1 W_1,\quad a_2 = \sigma(h
 
 입력 $a_0 = [1.0, 2.0]$, $W_1$의 원소를 모두 0.5, 정답 $y = 1.0$이라고 두고 순전파 결과가 $a_1 = [0.6, 0.7]$, $a_2 = 0.68$인 경우입니다.
 
-- $error_2 = 1.0 - 0.68 = 0.32$
-- $\sigma'(a_2) = 0.68 \times 0.32 \approx 0.22$, 따라서 $\delta_2 \approx 0.07$
-- $\Delta W_1 = [0.6, 0.7]^T \times 0.07 = [0.042, 0.049]^T$
-- $error_1 = 0.07 \times [0.5, 0.5] = [0.035, 0.035]$
-- $\sigma'(a_1) = [0.24, 0.21]$, 따라서 $\delta_1 = [0.0084, 0.00735]$
-- $\Delta W_0 = [1.0, 2.0]^T [0.0084, 0.00735] = \begin{bmatrix} 0.0084 & 0.00735 \\ 0.0168 & 0.0147 \end{bmatrix}$
+$$e_2 = 1.0 - 0.68 = 0.32$$
+
+$$\sigma'(a_2) = 0.68 \times 0.32 \approx 0.22 \quad \Rightarrow \quad \delta_2 \approx 0.07$$
+
+$$\Delta W_1 = \begin{bmatrix} 0.6 \\\\ 0.7 \end{bmatrix} \times 0.07 = \begin{bmatrix} 0.042 \\\\ 0.049 \end{bmatrix}$$
+
+$$e_1 = 0.07 \times [0.5, 0.5] = [0.035, 0.035]$$
+
+$$\sigma'(a_1) = [0.24, 0.21] \quad \Rightarrow \quad \delta_1 = [0.0084, 0.00735]$$
+
+$$\Delta W_0 = \begin{bmatrix} 1.0 \\\\ 2.0 \end{bmatrix} [0.0084, 0.00735] = \begin{bmatrix} 0.0084 & 0.00735 \\\\ 0.0168 & 0.0147 \end{bmatrix}$$
 
 ## 04. 학습 (덧셈 문제)
 
